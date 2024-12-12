@@ -31,6 +31,25 @@ model = load_model_from_file()
 st.write("### Weather Dataset")
 st.write(data)
 
+# Filter by Rain Tomorrow
+st.write("### Filter by 'Rain Tomorrow'")
+rain_tomorrow_filter = st.selectbox("Will it rain tomorrow?", options=data['RainTomorrow'].unique())
+filtered_data = data[data['RainTomorrow'] == rain_tomorrow_filter]
+st.write("### Filtered Data")
+st.write(filtered_data)
+
+# Filter by Temperature Range
+st.write("### Filter by Temperature Range")
+min_temp = st.slider("Minimum Temperature", int(data['MinTemp'].min()), int(data['MinTemp'].max()))
+max_temp = st.slider("Maximum Temperature", int(data['MaxTemp'].min()), int(data['MaxTemp'].max()))
+temp_filtered_data = data[(data['MinTemp'] >= min_temp) & (data['MaxTemp'] <= max_temp)]
+st.write("### Filtered Data by Temperature Range")
+st.write(temp_filtered_data)
+
+# Display key metrics
+st.write("### Weather Metrics Overview")
+st.write(data[['MinTemp', 'MaxTemp', 'Rainfall', 'Humidity9am', 'Humidity3pm']])
+
 # Make prediction on selected data
 st.write("### Predict 'Rain Tomorrow'")
 input_data = st.text_input("Enter the weather data for prediction (comma-separated):")
@@ -44,24 +63,24 @@ if input_data:
         if len(input_data) != 5:
             raise ValueError("Please enter exactly 5 values corresponding to the features.")
 
-        # Reshape the input data to the expected shape (1, 5)
-        input_data = np.array(input_data).reshape(1, 5)
+        # Reshape the input data to the expected shape (1, 5) instead of (1, 5, 1, 1)
+        input_data = np.array(input_data).reshape(1, 5)  # Reshape to (1, 5) for the model input
 
-        # Assuming the model expects normalized data
+        # Assuming the model expects normalized data, normalize the input
         scaler = StandardScaler()
-        input_data = scaler.fit_transform(input_data)  # Scaling the input
+        input_data = scaler.fit_transform(input_data)  # Fit and transform the input data
 
         # Make prediction
         prediction = model.predict(input_data)
 
-        # Get the probability of rain
-        rain_probability = prediction[0][1]  # Index 1 corresponds to the "Rain" class
+        # Extract the scalar prediction (probability) and display it
+        rain_probability = prediction[0][0]  # Probability of rain (0 - 1)
 
         # Display raw prediction for debugging
         st.write(f"Raw Prediction (Probability of Rain): {rain_probability:.2f}")
 
-        # Adjust threshold if needed (e.g., using 0.5 for balanced classification)
-        threshold = 0.5
+        # Adjust threshold if needed (e.g., using 0.6 or 0.7 for a stricter classification)
+        threshold = 0.7
         if rain_probability > threshold:
             rain_prediction = 'Rain'
             identifier = f"Rain (Probability: {rain_probability:.2f})"
@@ -75,3 +94,10 @@ if input_data:
 
     except Exception as e:
         st.error(f"Error in processing input data: {e}")
+
+
+# Display additional insights
+st.write("### Additional Weather Insights")
+if 'Rainfall' in data.columns:
+    avg_rainfall = data['Rainfall'].mean()
+    st.write(f"**Average Rainfall**: {avg_rainfall:.2f} mm")
