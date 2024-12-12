@@ -68,9 +68,14 @@ if input_data:
         if len(input_data) != 5:
             raise ValueError("Please enter exactly 5 values corresponding to the features.")
 
+        # Calculate the TempDiff feature (MaxTemp - MinTemp)
+        temp_diff = input_data[1] - input_data[0]  # MaxTemp - MinTemp
+        input_data.append(temp_diff)  # Add TempDiff to the input data
+
+        # Ensure the input data is scaled with the updated scaler
         input_data_scaled = scaler.transform(np.array(input_data).reshape(1, -1))
 
-        input_data_reshaped = input_data_scaled.reshape(1, 5)
+        input_data_reshaped = input_data_scaled.reshape(1, 6)  # Now there are 6 features
 
         prediction = model.predict(input_data_reshaped)
 
