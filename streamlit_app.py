@@ -78,13 +78,16 @@ if input_data:
         prediction = model.predict(input_data)
 
         # Extract the scalar prediction (probability) and make a decision
-        rain_probability = prediction[0][0]  # Probability of rain (0 - 1)
-        if rain_probability > 0.5:
-            rain_prediction = 'Rain'
-            identifier = f"Rain (Probability: {rain_probability:.2f})"
-        else:
-            rain_prediction = 'No Rain'
-            identifier = f"No Rain (Probability: {1 - rain_probability:.2f})"
+threshold = 0.7  # You can adjust this value higher or lower based on your model's behavior
+rain_probability = prediction[0][0]  # Probability of rain (0 - 1)
+
+if rain_probability > threshold:
+    rain_prediction = 'Rain'
+    identifier = f"Rain (Probability: {rain_probability:.2f})"
+else:
+    rain_prediction = 'No Rain'
+    identifier = f"No Rain (Probability: {1 - rain_probability:.2f})"
+
 
         # Display the result
         st.write(f"Prediction: {rain_prediction}")
