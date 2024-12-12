@@ -3,12 +3,19 @@ import pandas as pd
 import numpy as np
 from tensorflow.keras.models import load_model
 from sklearn.preprocessing import StandardScaler
+import joblib  # To load the scaler.pkl file
 
 # Load the saved model
 @st.cache_resource
 def load_model_from_file():
-    model = load_model('weather_forecast_model3.h5')  # Replace with the path to your .h5 model file
+    model = load_model('weather_forecast_model.h5')  # Replace with the path to your .h5 model file
     return model
+
+# Load the scaler
+@st.cache_resource
+def load_scaler():
+    scaler = joblib.load('scaler.pkl')  # Load the scaler from the saved file
+    return scaler
 
 # Load the Weather Dataset
 @st.cache
@@ -24,8 +31,9 @@ st.write("Explore weather conditions and forecasts.")
 # Load the data
 data = load_data()
 
-# Load the model
+# Load the model and scaler
 model = load_model_from_file()
+scaler = load_scaler()
 
 # Display the data
 st.write("### Weather Dataset")
@@ -65,18 +73,11 @@ if input_data:
         if len(input_data) != 5:
             raise ValueError("Please enter exactly 5 values corresponding to the features.")
 
-        # Ensure the input data is normalized like the training data
-        # Assuming the model was trained with StandardScaler
-        scaler = StandardScaler()
-
-        # Fit the scaler on the data, then transform the input data
-        input_data_scaled = scaler.fit_transform(np.array(input_data).reshape(1, -1))
-
-        # Reshape the input data to match the model's expected input shape
-        input_data_reshaped = input_data_scaled.reshape(1, 5)  # For a fully connected network (not CNN)
+        # Normalize the input data using the loaded scaler
+        input_data_scaled = scaler.transform(np.array(input_data).reshape(1, -1))
 
         # Make prediction
-        prediction = model.predict(input_data_reshaped)
+        prediction = model.predict(input_data_scaled)
 
         # Extract the scalar prediction (probability) and display it
         rain_probability = prediction[0][0]  # Probability of rain (0 - 1)
