@@ -1,5 +1,3 @@
-# streamlit_app.py
-
 import streamlit as st
 import pandas as pd
 import numpy as np
@@ -65,14 +63,12 @@ if input_data:
         if len(input_data) != 5:
             raise ValueError("Please enter exactly 5 values corresponding to the features.")
 
-        # Reshape the input data to the expected shape (1, 5, 1, 1)
-        input_data = np.array(input_data).reshape(1, 5, 1, 1)
+        # Reshape the input data to the expected shape (1, 5) instead of (1, 5, 1, 1)
+        input_data = np.array(input_data).reshape(1, 5)  # Reshape to (1, 5) for the model input
 
-        # Assuming the model expects normalized data
-        # Flatten for scaling and then reshape it back to (1, 5, 1, 1)
+        # Assuming the model expects normalized data, normalize the input
         scaler = StandardScaler()
-        input_data = scaler.fit_transform(input_data.reshape(1, -1))  # Flatten for scaling
-        input_data = input_data.reshape(1, 5, 1, 1)  # Reshape back to (1, 5, 1, 1)
+        input_data = scaler.fit_transform(input_data)  # Fit and transform the input data
 
         # Make prediction
         prediction = model.predict(input_data)
@@ -98,7 +94,6 @@ if input_data:
 
     except Exception as e:
         st.error(f"Error in processing input data: {e}")
-
 
 
 # Display additional insights
