@@ -59,11 +59,11 @@ input_data = st.text_input("Enter the weather data for prediction (comma-separat
 if input_data:
     try:
         # Preprocessing the input data
-        input_data = np.array([float(i) for i in input_data.split(',')]).reshape(1, -1)
+        input_data = np.array([float(i) for i in input_data.split(',')]).reshape(1, 5, 1, 1)
         
         # Assuming the model expects normalized data
         scaler = StandardScaler()
-        input_data = scaler.fit_transform(input_data)
+        input_data = scaler.fit_transform(input_data.reshape(1, -1))  # Flatten for scaling then reshape
         
         # Make prediction
         prediction = model.predict(input_data)
