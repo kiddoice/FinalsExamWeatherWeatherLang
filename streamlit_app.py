@@ -80,7 +80,7 @@ if input_data:
         st.write(f"Raw Prediction (Probability of Rain): {rain_probability:.2f}")
 
         # Adjust threshold if needed (e.g., using 0.6 or 0.7 for a stricter classification)
-        threshold = 0.7
+        threshold = 0.5
         if rain_probability > threshold:
             rain_prediction = 'Rain'
             identifier = f"Rain (Probability: {rain_probability:.2f})"
