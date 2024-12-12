@@ -105,7 +105,7 @@ if input_data:
         st.write(f"Raw Prediction (Probability of Rain): {rain_probability:.2f}")
 
         # Adjust threshold if needed (e.g., using 0.5 for a balanced classification)
-        threshold = 0.7  # Adjusted to make the classification less strict
+        threshold = 0.5  # Adjusted to make the classification less strict
         if rain_probability > threshold:
             rain_prediction = 'Rain'
             identifier = f"Rain (Probability: {rain_probability:.2f})"
