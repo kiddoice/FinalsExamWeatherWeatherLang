@@ -8,7 +8,7 @@ import joblib  # To load the scaler.pkl file
 # Load the saved model
 @st.cache_resource
 def load_model_from_file():
-    model = load_model('weather_forecast_model4.h5')  # Replace with the path to your .h5 model file
+    model = load_model('weather_forecast_model.h5')  # Replace with the path to your .h5 model file
     return model
 
 # Load the scaler
@@ -72,29 +72,32 @@ if input_data:
         if len(input_data) != 5:
             raise ValueError("Please enter exactly 5 values corresponding to the features.")
 
-        # Reshape the input data to a 2D array: (1, 5)
+        # Reshape the input data to a 2D array with shape (1, 5)
         input_data_reshaped = np.array(input_data).reshape(1, -1)
+
+        # Debugging: Display reshaped input data
+        st.write("Reshaped input data:", input_data_reshaped)
 
         # Normalize the input data using the loaded scaler
         input_data_scaled = scaler.transform(input_data_reshaped)
 
+        # Debugging: Display scaled input data
+        st.write("Scaled input data:", input_data_scaled)
+
         # Make prediction
         prediction = model.predict(input_data_scaled)
 
-        # Extract the scalar prediction (probability) and display it
-        rain_probability = prediction[0][0]  # Probability of rain (0 - 1)
-
-        # Display raw prediction for debugging
-        st.write(f"Raw Prediction (Probability of Rain): {rain_probability:.2f}")
+        # Debugging: Display raw prediction
+        st.write(f"Raw Prediction (probability of rain): {prediction[0][0]:.2f}")
 
         # Adjust threshold if needed (e.g., using 0.5 for a balanced classification)
-        threshold = 0.7  # Adjusted to make the classification less strict
-        if rain_probability > threshold:
+        threshold = 0.5  # Set threshold to 0.5 (can experiment with a higher threshold if needed)
+        if prediction[0][0] > threshold:
             rain_prediction = 'Rain'
-            identifier = f"Rain (Probability: {rain_probability:.2f})"
+            identifier = f"Rain (Probability: {prediction[0][0]:.2f})"
         else:
             rain_prediction = 'No Rain'
-            identifier = f"No Rain (Probability: {1 - rain_probability:.2f})"
+            identifier = f"No Rain (Probability: {1 - prediction[0][0]:.2f})"
 
         # Display the result
         st.write(f"Prediction: {rain_prediction}")
