@@ -69,8 +69,10 @@ if input_data:
         input_data = np.array(input_data).reshape(1, 5, 1, 1)
 
         # Assuming the model expects normalized data
+        # Flatten for scaling and then reshape it back to (1, 5, 1, 1)
         scaler = StandardScaler()
-        input_data = scaler.fit_transform(input_data.reshape(1, -1))  # Flatten for scaling then reshape back
+        input_data = scaler.fit_transform(input_data.reshape(1, -1))  # Flatten for scaling
+        input_data = input_data.reshape(1, 5, 1, 1)  # Reshape back to (1, 5, 1, 1)
 
         # Make prediction
         prediction = model.predict(input_data)
@@ -78,6 +80,7 @@ if input_data:
         st.write(f"Prediction: {rain_prediction}")
     except Exception as e:
         st.error(f"Error in processing input data: {e}")
+
 
 # Display additional insights
 st.write("### Additional Weather Insights")
