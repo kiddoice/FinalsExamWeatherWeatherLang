@@ -73,13 +73,13 @@ if input_data:
             raise ValueError("Please enter exactly 5 values corresponding to the features.")
 
         # Reshape the input data to a 2D array with shape (1, 5)
-        input_data_reshaped = np.array(input_data).reshape(1, -1)
+        input_data_reshaped = np.array(input_data).reshape(1, -1)  # Make sure it's (1, 5)
 
         # Debugging: Display reshaped input data
         st.write("Reshaped input data:", input_data_reshaped)
 
         # Normalize the input data using the loaded scaler
-        input_data_scaled = scaler.transform(input_data_reshaped)
+        input_data_scaled = scaler.transform(input_data_reshaped)  # This ensures it matches training scale
 
         # Debugging: Display scaled input data
         st.write("Scaled input data:", input_data_scaled)
