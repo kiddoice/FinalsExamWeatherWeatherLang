@@ -20,7 +20,6 @@ def load_scaler():
 # Load the Weather Dataset
 @st.cache
 def load_data():
-    # Replace 'weather.csv' with the actual path or raw GitHub URL if hosted online
     data = pd.read_csv('weather.csv')
     return data
 
@@ -73,8 +72,11 @@ if input_data:
         if len(input_data) != 5:
             raise ValueError("Please enter exactly 5 values corresponding to the features.")
 
+        # Reshape input to (1, 5) before scaling
+        input_data_reshaped = np.array(input_data).reshape(1, -1)
+
         # Normalize the input data using the loaded scaler
-        input_data_scaled = scaler.transform(np.array(input_data).reshape(1, -1))
+        input_data_scaled = scaler.transform(input_data_reshaped)
 
         # Make prediction
         prediction = model.predict(input_data_scaled)
