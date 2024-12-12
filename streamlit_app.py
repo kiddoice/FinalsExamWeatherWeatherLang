@@ -72,7 +72,7 @@ if input_data:
         if len(input_data) != 5:
             raise ValueError("Please enter exactly 5 values corresponding to the features.")
 
-        # Reshape input to (1, 5) before scaling
+        # Reshape the input data to a 2D array: (1, 5)
         input_data_reshaped = np.array(input_data).reshape(1, -1)
 
         # Normalize the input data using the loaded scaler
