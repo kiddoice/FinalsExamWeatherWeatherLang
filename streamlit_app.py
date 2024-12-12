@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 from tensorflow.keras.models import load_model
 from sklearn.preprocessing import StandardScaler
-import joblib  # For loading the scaler.pkl
 
 # Load the saved model
 @st.cache_resource
@@ -11,15 +10,10 @@ def load_model_from_file():
     model = load_model('weather_forecast_model4.h5')  # Replace with the path to your .h5 model file
     return model
 
-# Load the scaler
-@st.cache_resource
-def load_scaler():
-    scaler = joblib.load('scaler.pkl')  # Load the scaler from the saved file
-    return scaler
-
 # Load the Weather Dataset
 @st.cache
 def load_data():
+    # Replace 'weather.csv' with the actual path or raw GitHub URL if hosted online
     data = pd.read_csv('weather.csv')
     return data
 
@@ -30,9 +24,8 @@ st.write("Explore weather conditions and forecasts.")
 # Load the data
 data = load_data()
 
-# Load the model and scaler
+# Load the model
 model = load_model_from_file()
-scaler = load_scaler()
 
 # Display the data
 st.write("### Weather Dataset")
@@ -63,6 +56,14 @@ st.write("### Predict 'Rain Tomorrow'")
 # Input data for prediction (comma-separated)
 input_data = st.text_input("Enter the weather data for prediction (comma-separated):")
 
+# Show example No Rain and Rain values
+st.write("### Example Values")
+st.write("**Example values for 'No Rain':**")
+st.write("[12.0, 22.0, 0.0, 60.0, 55.0]")  # No rain example
+
+st.write("**Example values for 'Rain':**")
+st.write("[15.0, 18.0, 5.0, 90.0, 85.0]")  # Rain example
+
 if input_data:
     try:
         # Convert the input into a list of floats
@@ -72,32 +73,33 @@ if input_data:
         if len(input_data) != 5:
             raise ValueError("Please enter exactly 5 values corresponding to the features.")
 
-        # Reshape the input data to a 2D array with shape (1, 5)
-        input_data_reshaped = np.array(input_data).reshape(1, 5)  # Shape should be (1, 5)
+        # Ensure the input data is normalized like the training data
+        # Assuming the model was trained with StandardScaler
+        scaler = StandardScaler()
 
-        # Debugging: Display reshaped input data
-        st.write("Reshaped input data:", input_data_reshaped)
+        # Fit the scaler on the data, then transform the input data
+        input_data_scaled = scaler.fit_transform(np.array(input_data).reshape(1, -1))
 
-        # Normalize the input data using the loaded scaler
-        input_data_scaled = scaler.transform(input_data_reshaped)  # This ensures it matches the scale of training data
-
-        # Debugging: Display scaled input data
-        st.write("Scaled input data:", input_data_scaled)
+        # Reshape the input data to match the model's expected input shape
+        input_data_reshaped = input_data_scaled.reshape(1, 5)  # For a fully connected network (not CNN)
 
         # Make prediction
-        prediction = model.predict(input_data_scaled)
+        prediction = model.predict(input_data_reshaped)
 
-        # Debugging: Display raw prediction
-        st.write(f"Raw Prediction (probability of rain): {prediction[0][0]:.2f}")
+        # Extract the scalar prediction (probability) and display it
+        rain_probability = prediction[0][0]  # Probability of rain (0 - 1)
+
+        # Display raw prediction for debugging
+        st.write(f"Raw Prediction (Probability of Rain): {rain_probability:.2f}")
 
         # Adjust threshold if needed (e.g., using 0.5 for a balanced classification)
-        threshold = 0.5  # Set threshold to 0.5 (can experiment with a higher threshold if needed)
-        if prediction[0][0] > threshold:
+        threshold = 0.7  # Adjusted to make the classification less strict
+        if rain_probability > threshold:
             rain_prediction = 'Rain'
-            identifier = f"Rain (Probability: {prediction[0][0]:.2f})"
+            identifier = f"Rain (Probability: {rain_probability:.2f})"
         else:
             rain_prediction = 'No Rain'
-            identifier = f"No Rain (Probability: {1 - prediction[0][0]:.2f})"
+            identifier = f"No Rain (Probability: {1 - rain_probability:.2f})"
 
         # Display the result
         st.write(f"Prediction: {rain_prediction}")
