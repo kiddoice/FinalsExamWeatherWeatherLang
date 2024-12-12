@@ -7,7 +7,7 @@ from sklearn.preprocessing import StandardScaler
 # Load the saved model
 @st.cache_resource
 def load_model_from_file():
-    model = load_model('weather_forecast_model2.h5')  # Replace with the path to your .h5 model file
+    model = load_model('weather_forecast_model3.h5')  # Replace with the path to your .h5 model file
     return model
 
 # Load the Weather Dataset
