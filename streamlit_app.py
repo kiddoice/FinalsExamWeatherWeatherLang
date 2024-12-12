@@ -3,12 +3,19 @@ import pandas as pd
 import numpy as np
 from tensorflow.keras.models import load_model
 from sklearn.preprocessing import StandardScaler
+import joblib  # To load the scaler.pkl
 
 # Load the saved model
 @st.cache_resource
 def load_model_from_file():
     model = load_model('weather_forecast_model3.h5')  # Replace with the path to your .h5 model file
     return model
+
+# Load the scaler
+@st.cache_resource
+def load_scaler():
+    scaler = joblib.load('scaler.pkl')  # Replace with the path to your scaler.pkl file
+    return scaler
 
 # Load the Weather Dataset
 @st.cache
@@ -26,6 +33,9 @@ data = load_data()
 
 # Load the model
 model = load_model_from_file()
+
+# Load the scaler
+scaler = load_scaler()
 
 # Display the data
 st.write("### Weather Dataset")
@@ -58,12 +68,17 @@ input_data = st.text_input("Enter the weather data for prediction (comma-separat
 
 # Show example No Rain and Rain values
 st.write("### Example Values")
+
 st.write("**Example values for 'No Rain':**")
 st.write("[12.0, 22.0, 0.0, 60.0, 55.0]")  # No rain example
 
 st.write("**Example values for 'Rain':**")
 st.write("[15.0, 18.0, 5.0, 90.0, 85.0]")  # Rain example
 
+# Adding a horizontal division (line) between the example values and input field
+st.markdown("<hr>", unsafe_allow_html=True)
+
+# Output prediction after user input
 if input_data:
     try:
         # Convert the input into a list of floats
@@ -74,11 +89,8 @@ if input_data:
             raise ValueError("Please enter exactly 5 values corresponding to the features.")
 
         # Ensure the input data is normalized like the training data
-        # Assuming the model was trained with StandardScaler
-        scaler = StandardScaler()
-
-        # Fit the scaler on the data, then transform the input data
-        input_data_scaled = scaler.fit_transform(np.array(input_data).reshape(1, -1))
+        # Use the loaded scaler to transform the input data
+        input_data_scaled = scaler.transform(np.array(input_data).reshape(1, -1))
 
         # Reshape the input data to match the model's expected input shape
         input_data_reshaped = input_data_scaled.reshape(1, 5)  # For a fully connected network (not CNN)
