@@ -76,7 +76,11 @@ if input_data:
 
         # Make prediction
         prediction = model.predict(input_data)
-        rain_prediction = 'Rain' if prediction[0] > 0.5 else 'No Rain'
+
+        # Extract the scalar prediction (probability) and make a decision
+        rain_prediction = 'Rain' if prediction[0][0] > 0.5 else 'No Rain'
+
+        # Display the result
         st.write(f"Prediction: {rain_prediction}")
     except Exception as e:
         st.error(f"Error in processing input data: {e}")
