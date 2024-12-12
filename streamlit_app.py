@@ -52,6 +52,8 @@ st.write(data[['MinTemp', 'MaxTemp', 'Rainfall', 'Humidity9am', 'Humidity3pm']])
 
 # Make prediction on selected data
 st.write("### Predict 'Rain Tomorrow'")
+
+# Input data for prediction (comma-separated)
 input_data = st.text_input("Enter the weather data for prediction (comma-separated):")
 
 if input_data:
@@ -63,15 +65,18 @@ if input_data:
         if len(input_data) != 5:
             raise ValueError("Please enter exactly 5 values corresponding to the features.")
 
-        # Reshape the input data to the expected shape (1, 5) instead of (1, 5, 1, 1)
-        input_data = np.array(input_data).reshape(1, 5)  # Reshape to (1, 5) for the model input
-
-        # Assuming the model expects normalized data, normalize the input
+        # Ensure the input data is normalized like the training data
+        # Assuming the model was trained with StandardScaler
         scaler = StandardScaler()
-        input_data = scaler.fit_transform(input_data)  # Fit and transform the input data
+
+        # Fit the scaler on the data, then transform the input data
+        input_data_scaled = scaler.fit_transform(np.array(input_data).reshape(1, -1))
+
+        # Reshape the input data to match the model's expected input shape
+        input_data_reshaped = input_data_scaled.reshape(1, 5)  # For a fully connected network (not CNN)
 
         # Make prediction
-        prediction = model.predict(input_data)
+        prediction = model.predict(input_data_reshaped)
 
         # Extract the scalar prediction (probability) and display it
         rain_probability = prediction[0][0]  # Probability of rain (0 - 1)
@@ -79,8 +84,8 @@ if input_data:
         # Display raw prediction for debugging
         st.write(f"Raw Prediction (Probability of Rain): {rain_probability:.2f}")
 
-        # Adjust threshold if needed (e.g., using 0.6 or 0.7 for a stricter classification)
-        threshold = 0.7
+        # Adjust threshold if needed (e.g., using 0.5 for a balanced classification)
+        threshold = 0.5  # Adjusted to make the classification less strict
         if rain_probability > threshold:
             rain_prediction = 'Rain'
             identifier = f"Rain (Probability: {rain_probability:.2f})"
@@ -94,7 +99,6 @@ if input_data:
 
     except Exception as e:
         st.error(f"Error in processing input data: {e}")
-
 
 # Display additional insights
 st.write("### Additional Weather Insights")
